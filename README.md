@@ -21,6 +21,7 @@ cd mqtt
 .\07-wazuh-verify.ps1 -ManagerIP <confirmed-manager-ip>
 .\08-mosquitto-functional-check.ps1 -FunctionalTest
 .\09-password-rotation.ps1 -Account washington,kennedy
+.\10-mqtt-alert-dashboard.ps1 -MqttPorts <confirmed-mqtt-port> -OpenHtml
 ```
 
 ## SSH
@@ -48,6 +49,9 @@ The `08-mosquitto-functional-check` script backs up and audits broker security d
 and tests local TCP readiness. The `09-password-rotation` scripts are plan-only
 until explicitly applied, exclude protected competition accounts, save a private
 credential sheet, and require dashboard synchronization immediately afterward.
+The `10-mqtt-alert-dashboard` script is a zero-listener monitor that writes a
+private auto-refreshing HTML dashboard and append-only alert log. It never opens
+a port or changes firewall, service, account, or Wazuh configuration.
 
 ## Drift Comparison
 
