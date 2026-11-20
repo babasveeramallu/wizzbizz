@@ -20,20 +20,30 @@ $identity=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
 if($LASTEXITCODE -ne 0){throw 'Could not restrict credential directory.'}
 
 $alphabet='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!#%^_*'
+$csvPath=Join-Path $run 'credentials.csv'
+if(Test-Path -LiteralPath $csvPath){Remove-Item -LiteralPath $csvPath -Force}
 $rows=foreach($user in $users){
     $password='NOT_GENERATED'
     $status='PLAN_ONLY'
     if($Apply){
-        $bytes=New-Object byte[] 24
-        $rng=[Security.Cryptography.RandomNumberGenerator]::Create()
-        try{$rng.GetBytes($bytes)}finally{$rng.Dispose()}
-        $password=-join ($bytes | ForEach-Object {$alphabet[$_ % $alphabet.Length]})
-        Set-LocalUser -Name $user.Name -Password (ConvertTo-SecureString $password -AsPlainText -Force)
-        $status='CHANGED'
+        try {
+            $bytes=New-Object byte[] 24
+            $rng=[Security.Cryptography.RandomNumberGenerator]::Create()
+            try{$rng.GetBytes($bytes)}finally{$rng.Dispose()}
+            $password=-join ($bytes | ForEach-Object {$alphabet[$_ % $alphabet.Length]})
+            Set-LocalUser -Name $user.Name -Password (ConvertTo-SecureString $password -AsPlainText -Force)
+            $status='CHANGED'
+        } catch {
+            $password='FAILED'
+            $status="ERROR: $($_.Exception.Message)"
+        }
     }
-    [pscustomobject]@{Username=$user.Name;Password=$password;DashboardSync='REQUIRED';Status=$status}
+    $row=[pscustomobject]@{Username=$user.Name;Password=$password;DashboardSync='REQUIRED';Status=$status}
+    $row | Export-Csv -LiteralPath $csvPath -NoTypeInformation -Append
+    $row
 }
-$rows | Export-Csv (Join-Path $run 'credentials.csv') -NoTypeInformation
-& icacls.exe (Join-Path $run 'credentials.csv') /inheritance:r /grant:r "*${identity}:F" '*S-1-5-18:F' | Out-Null
 $rows | Format-Table -AutoSize
+& icacls.exe $csvPath /inheritance:r /grant:r "*${identity}:F" '*S-1-5-18:F' | Out-Null
+if($LASTEXITCODE -ne 0){throw 'Could not restrict credentials.csv ACL.'}
+Write-Host "Private credential sheet: $csvPath" -ForegroundColor Cyan
 Write-Warning 'Immediately update https://dash.playtcdc.org/team/passwords for every changed score user.'

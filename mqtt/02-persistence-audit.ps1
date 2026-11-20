@@ -38,7 +38,7 @@ foreach($share in @(Get-SmbShare -ErrorAction SilentlyContinue)) {
         $shareAcls += Get-SmbShareAccess -Name $share.Name |
             Select-Object @{n='Share';e={$share.Name}},AccountName,AccessControlType,AccessRight
     } catch {
-        $shareAcls += [pscustomobject]@{Share=$share.Name;Name='ERROR';AccessControlType='';AccessRight=$_.Exception.Message}
+        $shareAcls += [pscustomobject]@{Share=$share.Name;AccountName='ERROR';AccessControlType='';AccessRight=$_.Exception.Message}
     }
 }
 

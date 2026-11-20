@@ -66,16 +66,16 @@ if($FunctionalTest){
         $subErr=Join-Path $run 'functional-sub.err'
         $listener=Start-Process -FilePath $subPath `
             -ArgumentList @('-h','127.0.0.1','-p',"$ProbePort",'-t',$topic,'-C','1') `
-            -RedirectStandardOutput $subOut -RedirectStandardError $subErr -PassThru
+            -RedirectStandardOutput $subOut -RedirectStandardError $subErr -NoNewWindow -PassThru
         Start-Sleep -Milliseconds 500
         $publish=Start-Process -FilePath $pubPath `
             -ArgumentList @('-h','127.0.0.1','-p',"$ProbePort",'-t',$topic,'-m',$message) `
-            -PassThru -Wait
+            -NoNewWindow -PassThru -Wait
         if(-not $listener.WaitForExit(5000)){
-            Stop-Process -Id $listener.Id -Force
+            Stop-Process -Id $listener.Id -Force -ErrorAction SilentlyContinue
             $functional='TIMEOUT'
         } elseif($publish.ExitCode -eq 0 -and
-            (Test-Path $subOut) -and (Get-Content $subOut -Raw).Trim() -eq $message){
+            (Test-Path -LiteralPath $subOut) -and ("$(Get-Content -LiteralPath $subOut -Raw)").Trim() -eq $message){
             $functional='PASS'
         } else {
             $functional='FAIL'
