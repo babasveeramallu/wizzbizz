@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -uo pipefail
+umask 077
+
+report_root=${1:-/root/tcdc-ssh-backups/persistence}
+((EUID == 0)) || { echo 'Run as root.' >&2; exit 1; }
+[[ ! -L $report_root ]] || { echo 'Report path must not be a link.' >&2; exit 1; }
+mkdir -p -m 700 "$report_root"
+run=$(mktemp -d "$report_root/run.XXXXXXXX")
+
+{
+    for path in /etc/crontab /etc/cron.d /etc/cron.hourly /etc/cron.daily \
+        /etc/cron.weekly /etc/cron.monthly /var/spool/cron /etc/systemd/system; do
+        [[ -e $path ]] && find "$path" -maxdepth 3 -type f -printf '%M %u:%g %p\n'
+    done
+} >"$run/persistence-files.txt" 2>&1
+systemctl list-timers --all --no-pager >"$run/timers.txt" 2>&1
+systemctl list-unit-files --state=enabled --no-pager >"$run/enabled-units.txt" 2>&1
+
+while IFS=: read -r name _ uid _ _ home shell; do
+    [[ $uid =~ ^[0-9]+$ ]] || continue
+    if command -v crontab >/dev/null; then crontab -u "$name" -l 2>/dev/null || true; fi
+    for key in "$home/.ssh/authorized_keys" "$home/.ssh/authorized_keys2"; do
+        if [[ -r $key ]] && command -v ssh-keygen >/dev/null; then
+            printf '%s\n' "$key"
+            ssh-keygen -lf "$key"
+        fi
+    done
+done </etc/passwd >"$run/user-persistence.txt" 2>&1
+
+printf 'Persistence audit: %s\n' "$run"
+printf 'Audit only; no units, cron files, keys, or accounts were changed.\n'

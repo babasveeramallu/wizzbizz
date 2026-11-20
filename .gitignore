@@ -1,0 +1,16 @@
+# Competition evidence and generated reports
+*.evtx
+*.wfw
+*.log
+*.csv
+*.json
+*.env
+initial_triage.txt
+TCDC_Backup/
+ccdc-reports/
+
+# Local secrets and private keys
+*.key
+*.pem
+*.pfx
+.env
