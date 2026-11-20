@@ -60,11 +60,3 @@ credential sheet, and require dashboard synchronization immediately afterward.
 sudo bash ssh/06-Baseline-Compare.sh
 sudo bash ssh/06-Baseline-Compare.sh --compare OLD_RUN NEW_RUN
 ```
-
-## Safety
-
-- Verify scored functionality after every change.
-- Preserve Black Team's Wazuh agent and competition accounts.
-- Keep generated backups, evidence, host keys, and reports private.
-- Do not commit credentials, packet data, or event-specific secrets.
-- Test all scripts on a disposable VM before the competition.
