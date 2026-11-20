@@ -781,34 +781,3 @@ Get-MpPreference | Select-Object DisableRealtimeMonitoring,ExclusionPath,Exclusi
 | `ssh-workstation` | Museum OS | | | [ ] | [ ] |
 | `ad` | Domain Admin / Museum AD | | | [ ] | [ ] |
 | `mqtt` | Local OS / Mosquitto | | | [ ] | [ ] |
-
-### Store Budget, Injects & IR Evidence Log
-
-| Time (CT) | Type (`Store`/`Inject`/`IR`) | Host | Details / IOCs / Cost / Rubric Notes | Owner & Status |
-| :--- | :--- | :--- | :--- | :--- |
-| | | | | |
-| | | | | |
-| | | | | |
-
----
-
-## 19. Pre-Competition GitHub Hygiene (`.gitignore`)
-
-Add these rules to `.gitignore` in `babasveeramallu/wizzbizz` so backups, host private keys, event logs, and credential sheets are never committed publicly (**R23**):
-
-```gitignore
-# Never commit competition backups, logs, private keys, or credential sheets
-TCDC_Backup/
-tcdc-ssh-backups/
-tcdc-vault/
-tcdc-bak/
-*.wfw
-*.evtx
-*.sha256
-*.tar.gz
-*.zip
-credentials.csv
-credentials.tsv
-alerts.log
-dashboard.html
-```
