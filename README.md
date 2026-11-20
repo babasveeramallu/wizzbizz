@@ -42,10 +42,4 @@ sudo bash TCDC-Wazuh-Verify.sh --manager-ip <confirmed-manager-ip>
 sudo bash TCDC-Wazuh-Verify.sh --manager-ip <confirmed-manager-ip> --allow-firewall
 ```
 
-## Safety
 
-- Read and follow the official competition rules and staff injects.
-- Keep generated backups, evidence, host keys, and reports private.
-- Do not commit credentials, packet data, or event-specific secrets.
-- Test on a disposable VM before using scripts during the competition.
-- Verify scored functionality after every change.
