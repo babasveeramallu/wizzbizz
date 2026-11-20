@@ -12,8 +12,7 @@ ss -H -lntup >"$run/listeners.txt"
 {
     printf 'PROTOCOL\tLOCAL_ADDRESS\tPROCESS\tCLASSIFICATION\n'
     while IFS= read -r line; do
-        netid=${line%%[[:space:]]*}
-        read -r state recvq sendq local peer process <<<"$line"
+        read -r netid state recvq sendq local peer process <<<"$line"
         class=REVIEW
         [[ $process == *sshd* || $process == *ssh* ]] && class=SCORED-SSH
         [[ $process == *systemd-resolved* ]] && class=SYSTEM-REVIEW
