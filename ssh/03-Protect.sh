@@ -5,8 +5,8 @@ umask 077
 usage() {
     cat >&2 <<'EOF'
 Usage:
-  sudo bash TCDC-SSH-03-Protect.sh PORT
-  sudo bash TCDC-SSH-03-Protect.sh PORT --apply
+  sudo bash 03-Protect.sh PORT
+  sudo bash 03-Protect.sh PORT --apply
 
 PORT is required. The script is plan-only unless --apply is the second argument.
 EOF
@@ -19,7 +19,7 @@ if [[ $port == --help || $port == -h ]]; then
 fi
 if [[ $port == --apply ]]; then
     echo 'ERROR: --apply is a mode flag; supply the SSH port first.' >&2
-    echo 'Example: sudo bash TCDC-SSH-03-Protect.sh 22 --apply' >&2
+    echo 'Example: sudo bash 03-Protect.sh 22 --apply' >&2
     usage
 fi
 if (($# < 1 || $# > 2)); then
@@ -55,7 +55,7 @@ ufw status numbered >"$before"
 if ufw status | grep -q "^[[:space:]]*$port/tcp"; then
     echo "Existing broad rule for TCP $port is present; no duplicate was added."
 else
-    ufw allow "$port/tcp" comment 'TCDC SSH'
+    ufw allow "$port/tcp" comment 'SSH scored service'
 fi
 diff -u "$before" <(ufw status numbered) || true
 rm -f "$before"

@@ -4,7 +4,7 @@ umask 077
 
 usage() {
     cat <<'EOF'
-Usage: sudo bash TCDC-SSH-02-Persistence-Audit.sh [--report-dir DIR]
+Usage: sudo bash 02-Persistence-Audit.sh [--report-dir DIR]
 Audit only. No units, cron files, keys, or accounts are changed.
 EOF
 }

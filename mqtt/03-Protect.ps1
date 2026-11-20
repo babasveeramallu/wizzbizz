@@ -41,13 +41,13 @@ if ((Get-Service -Name $service[0].Name).Status -ne 'Running') {
     Start-Service -Name $service[0].Name
 }
 foreach ($p in $Port | Sort-Object -Unique) {
-    $name = "TCDC-MQTT-TCP-$p"
+    $name = "WizzBizz-MQTT-TCP-$p"
     $existing = @(Get-NetFirewallRule -PolicyStore PersistentStore -DisplayName $name -ErrorAction SilentlyContinue)
     if ($existing.Count -eq 0) {
         New-NetFirewallRule -DisplayName $name -Direction Inbound -Action Allow `
             -Protocol TCP -LocalPort $p -RemoteAddress Any -Profile Any | Out-Null
     } elseif ($existing.Count -gt 1) {
-        throw "Multiple TCDC MQTT rules named '$name' exist; inspect before continuing."
+        throw "Multiple MQTT protection rules named '$name' exist; inspect before continuing."
     }
 }
 Get-NetTCPConnection -State Listen -OwningProcess $pid |

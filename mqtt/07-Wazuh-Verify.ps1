@@ -95,7 +95,7 @@ if ($log) {
 
 $rule = $null
 if ($AllowFirewall) {
-    $displayName = "TCDC-Wazuh-TCP-1514-$ManagerIP"
+    $displayName = "WizzBizz-Wazuh-TCP-1514-$ManagerIP"
     $rule = @(Get-NetFirewallRule -DisplayName $displayName -PolicyStore PersistentStore -ErrorAction SilentlyContinue)
     if ($rule.Count -eq 0) {
         $rule = @(New-NetFirewallRule -DisplayName $displayName -Direction Outbound -Action Allow `

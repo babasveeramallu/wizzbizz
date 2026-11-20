@@ -5,7 +5,7 @@ umask 077
 
 usage() {
     cat <<'EOF'
-Usage: sudo bash TCDC-SSH-00-System-Audit.sh [--report-dir DIR]
+Usage: sudo bash 00-System-Audit.sh [--report-dir DIR]
 
 Read-only first response audit. Captures host identity, interfaces, addresses,
 routes, DNS, neighbors, firewall, listeners, connections, users, SSH, services,

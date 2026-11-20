@@ -4,7 +4,7 @@ umask 077
 
 usage() {
     cat <<'EOF'
-Usage: sudo bash TCDC-Wazuh-Verify.sh [--manager-host DNS] [--manager-ip IP] [--allow-firewall] [--report-dir DIR]
+Usage: sudo bash 07-Wazuh-Verify.sh [--manager-host DNS] [--manager-ip IP] [--allow-firewall] [--report-dir DIR]
 
 Read-only by default. It checks the existing Black Team-managed agent, manager
 DNS, local agent log, and outbound TCP 1514. It never installs, enrolls,
@@ -108,7 +108,7 @@ if $allow_firewall; then
         printf 'ERROR: UFW is not active; this script will not enable it.\n' >&2
         exit 1
     }
-    if ! ufw allow out to "$manager_ip" port 1514 proto tcp comment 'TCDC Wazuh' \
+    if ! ufw allow out to "$manager_ip" port 1514 proto tcp comment 'Wazuh event transport' \
         >"$run/firewall-change.txt" 2>&1; then
         printf 'ERROR: exact Wazuh firewall rule failed; inspect UFW.\n' >&2
         exit 1

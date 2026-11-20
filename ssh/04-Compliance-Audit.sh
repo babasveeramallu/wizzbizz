@@ -22,7 +22,7 @@ if command -v sshd >/dev/null 2>&1; then
     check SSH-RootLogin no "$(awk '$1=="permitrootlogin"{print $2;exit}' "$run/sshd-effective.txt")" 'Root login must not be permitted'
     check SSH-EmptyPasswords no "$(awk '$1=="permitemptypasswords"{print $2;exit}' "$run/sshd-effective.txt")" 'Empty-password SSH login must be disabled'
     check SSH-PAM yes "$(awk '$1=="usepam"{print $2;exit}' "$run/sshd-effective.txt")" 'PAM should remain enabled'
-    check SSH-MaxAuthTries 4 "$(awk '$1=="maxauthtries"{print $2;exit}' "$run/sshd-effective.txt")" 'Review against the TCDC account-lockout plan'
+    check SSH-MaxAuthTries 4 "$(awk '$1=="maxauthtries"{print $2;exit}' "$run/sshd-effective.txt")" 'Review against the competition account-lockout plan'
 fi
 
 if command -v ufw >/dev/null 2>&1; then

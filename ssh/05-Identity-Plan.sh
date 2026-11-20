@@ -4,7 +4,7 @@ umask 077
 
 usage() {
     cat <<'EOF'
-Usage: sudo bash TCDC-SSH-05-Identity-Plan.sh [--apply]
+Usage: sudo bash 05-Identity-Plan.sh [--apply]
 
 Plan-only by default. --apply writes isolated sshd drop-ins for:
   PermitRootLogin no

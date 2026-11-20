@@ -6,7 +6,7 @@ if [[ ${1:-} == --compare ]]; then
     baseline=${2:-}
     current=${3:-}
     [[ -n $baseline && -n $current && -d $baseline && -d $current ]] || {
-        echo 'Usage: sudo bash TCDC-SSH-06-Baseline-Compare.sh --compare OLD_RUN NEW_RUN' >&2
+        echo 'Usage: sudo bash 06-Baseline-Compare.sh --compare OLD_RUN NEW_RUN' >&2
         exit 2
     }
     diff -u "$baseline/state.sha256" "$current/state.sha256" || true

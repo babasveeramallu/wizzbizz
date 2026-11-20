@@ -1,75 +1,62 @@
-# WizzBizz TCDC Defense Scripts
+# WizzBizz Defense Scripts
 
-Small, independent scripts for auditing and protecting the TCDC MQTT and SSH
-hosts. Run the modules separately and review each report before applying a
-change.
+Independent scripts for the Windows MQTT and Ubuntu SSH hosts. Run each module
+separately and review its report before applying a change.
 
-## Windows 11 / MQTT
+## MQTT
 
 Run from elevated PowerShell:
 
 ```powershell
-.\TCDC-MQTT-00-System-Audit.ps1
-.\TCDC-MQTT-01-Port-Audit.ps1
-.\TCDC-MQTT-02-Persistence-Audit.ps1
-.\TCDC-MQTT-03-Protect.ps1 -Port <confirmed-mqtt-port>
-.\TCDC-MQTT-03-Protect.ps1 -Port <confirmed-mqtt-port> -Apply
-.\TCDC-MQTT-04-Compliance-Audit.ps1
-.\TCDC-MQTT-05-Identity-Plan.ps1
-.\TCDC-MQTT-06-Baseline-Compare.ps1
+cd mqtt
+
+.\00-System-Audit.ps1
+.\01-Port-Audit.ps1
+.\02-Persistence-Audit.ps1
+.\03-Protect.ps1 -Port <confirmed-mqtt-port>
+.\03-Protect.ps1 -Port <confirmed-mqtt-port> -Apply
+.\04-Compliance-Audit.ps1
+.\05-Identity-Plan.ps1
+.\06-Baseline-Compare.ps1
+.\07-Wazuh-Verify.ps1 -ManagerIP <confirmed-manager-ip>
 ```
 
-## Ubuntu / SSH
+## SSH
 
 ```bash
-sudo bash TCDC-SSH-00-System-Audit.sh
-sudo bash TCDC-SSH-01-Port-Audit.sh
-sudo bash TCDC-SSH-02-Persistence-Audit.sh
-sudo bash TCDC-SSH-03-Protect.sh <confirmed-ssh-port>
-sudo bash TCDC-SSH-03-Protect.sh <confirmed-ssh-port> --apply
-sudo bash TCDC-SSH-04-Compliance-Audit.sh
-sudo bash TCDC-SSH-05-Identity-Plan.sh
-sudo bash TCDC-SSH-06-Baseline-Compare.sh
+cd ssh
+
+sudo bash 00-System-Audit.sh
+sudo bash 01-Port-Audit.sh
+sudo bash 02-Persistence-Audit.sh
+sudo bash 03-Protect.sh <confirmed-ssh-port>
+sudo bash 03-Protect.sh <confirmed-ssh-port> --apply
+sudo bash 04-Compliance-Audit.sh
+sudo bash 05-Identity-Plan.sh
+sudo bash 06-Baseline-Compare.sh
+sudo bash 07-Wazuh-Verify.sh --manager-ip <confirmed-manager-ip>
 ```
 
-The protection scripts verify that the requested port belongs to Mosquitto or
-`sshd` before adding a firewall allow.
+The `00` modules are detailed read-only inventories. The `04` modules report
+explicit controls but do not claim full CIS/STIG compliance. Identity and
+protection modules are plan-only unless `-Apply` or `--apply` is supplied.
 
-The `04` scripts report explicit TCDC-safe controls; they are not a claim of
-full CIS/STIG compliance. The `05` scripts are plan-only identity changes unless
-an operator supplies `-Apply`/`--apply`. The `06` scripts produce state manifests
-for repeatable drift comparison:
+## Drift Comparison
 
 ```powershell
-.\TCDC-MQTT-06-Baseline-Compare.ps1
-.\TCDC-MQTT-06-Baseline-Compare.ps1 -CompareOld OLD_RUN -CompareNew NEW_RUN
+.\mqtt\06-Baseline-Compare.ps1
+.\mqtt\06-Baseline-Compare.ps1 -CompareOld OLD_RUN -CompareNew NEW_RUN
 ```
 
 ```bash
-sudo bash TCDC-SSH-06-Baseline-Compare.sh
-sudo bash TCDC-SSH-06-Baseline-Compare.sh --compare OLD_RUN NEW_RUN
+sudo bash ssh/06-Baseline-Compare.sh
+sudo bash ssh/06-Baseline-Compare.sh --compare OLD_RUN NEW_RUN
 ```
 
-The `00-System-Audit` scripts are the recommended first commands. They capture
-host identity, IPv4/IPv6 addresses and prefixes, adapters, MAC addresses, routes,
-default gateway, DNS, ARP/neighbors, firewall state, listening and established
-sockets with process ownership, users, services, scheduled tasks/timers,
-installed software/packages, and persistence metadata. They do not collect
-password hashes, private keys, shell history, or environment variables.
+## Safety
 
-## Existing Wazuh Agent Verification
-
-These verifiers do not install, re-enroll, restart, or edit the Black Team
-managed agent. They verify service state, DNS, local logs, and outbound TCP 1514.
-
-```powershell
-.\TCDC-Wazuh-Verify.ps1 -ManagerIP <confirmed-manager-ip>
-.\TCDC-Wazuh-Verify.ps1 -ManagerIP <confirmed-manager-ip> -AllowFirewall
-```
-
-```bash
-sudo bash TCDC-Wazuh-Verify.sh --manager-ip <confirmed-manager-ip>
-sudo bash TCDC-Wazuh-Verify.sh --manager-ip <confirmed-manager-ip> --allow-firewall
-```
-
-
+- Verify scored functionality after every change.
+- Preserve Black Team's Wazuh agent and competition accounts.
+- Keep generated backups, evidence, host keys, and reports private.
+- Do not commit credentials, packet data, or event-specific secrets.
+- Test all scripts on a disposable VM before the competition.
