@@ -36,6 +36,15 @@ run=$(mktemp -d "$report_root/run.XXXXXXXX")
 } >"$run/persistence-files.txt" 2>&1
 systemctl list-timers --all --no-pager >"$run/timers.txt" 2>&1
 systemctl list-unit-files --state=enabled --no-pager >"$run/enabled-units.txt" 2>&1
+find / -xdev -type f \( -perm -4000 -o -perm -2000 \) -printf '%M %u:%g %p\n' 2>/dev/null >"$run/suid-sgid.txt"
+{
+    for path in /etc/sudoers /etc/sudoers.d /etc/pam.d /etc/profile /etc/profile.d \
+        /etc/ld.so.preload; do
+        [[ -e $path ]] && find "$path" -maxdepth 2 -type f -printf '%M %u:%g %TY-%Tm-%TdT%TH:%TM:%TS %p\n' 2>/dev/null
+    done
+} >"$run/security-config-metadata.txt"
+grep -RniE '^[[:space:]]*(AuthorizedKeysCommand|AuthorizedKeysCommandUser)[[:space:]]' \
+    /etc/ssh 2>/dev/null >"$run/authorized-keys-command.txt" || true
 
 while IFS=: read -r name _ uid _ _ home shell; do
     [[ $uid =~ ^[0-9]+$ ]] || continue

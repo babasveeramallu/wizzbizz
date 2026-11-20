@@ -4,7 +4,10 @@ param([string]$ReportRoot='C:\TCDC_Backup\compliance')
 
 $ErrorActionPreference='Stop'
 $run=Join-Path $ReportRoot (Get-Date -Format 'yyyyMMdd-HHmmssfff')
-New-Item -ItemType Directory -Path $run -Force | Out-Null
+New-Item -ItemType Directory -Path $ReportRoot,$run -Force | Out-Null
+$identity=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+& icacls.exe $run /inheritance:r /grant:r "*${identity}:(OI)(CI)F" '*S-1-5-18:(OI)(CI)F' | Out-Null
+if($LASTEXITCODE -ne 0){throw "Could not restrict report directory: $run"}
 $rows=@()
 function Add-Check([string]$Control,[bool]$Passed,[string]$Detail) {
     $script:rows += [pscustomobject]@{Control=$Control;Status=$(if($Passed){'PASS'}else{'FAIL'});Detail=$Detail}

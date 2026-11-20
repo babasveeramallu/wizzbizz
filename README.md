@@ -19,6 +19,8 @@ cd mqtt
 .\05-Identity-Plan.ps1
 .\06-Baseline-Compare.ps1
 .\07-Wazuh-Verify.ps1 -ManagerIP <confirmed-manager-ip>
+.\08-Mosquitto-Check.ps1
+.\09-Password-Rotation.ps1 -Account washington,kennedy
 ```
 
 ## SSH
@@ -35,11 +37,17 @@ sudo bash 04-Compliance-Audit.sh
 sudo bash 05-Identity-Plan.sh
 sudo bash 06-Baseline-Compare.sh
 sudo bash 07-Wazuh-Verify.sh --manager-ip <confirmed-manager-ip>
+sudo bash 09-Password-Rotation.sh washington kennedy
 ```
 
 The `00` modules are detailed read-only inventories. The `04` modules report
 explicit controls but do not claim full CIS/STIG compliance. Identity and
 protection modules are plan-only unless `-Apply` or `--apply` is supplied.
+
+The `08-Mosquitto-Check` script backs up and audits broker security directives
+and tests local TCP readiness. The `09-Password-Rotation` scripts are plan-only
+until explicitly applied, exclude protected competition accounts, save a private
+credential sheet, and require dashboard synchronization immediately afterward.
 
 ## Drift Comparison
 

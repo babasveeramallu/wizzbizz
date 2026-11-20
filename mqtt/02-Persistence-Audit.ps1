@@ -4,7 +4,10 @@ param([string]$ReportRoot = 'C:\TCDC_Backup\persistence')
 
 $ErrorActionPreference = 'Stop'
 $run = Join-Path $ReportRoot (Get-Date -Format 'yyyyMMdd-HHmmssfff')
-New-Item -ItemType Directory -Path $run -Force | Out-Null
+New-Item -ItemType Directory -Path $ReportRoot,$run -Force | Out-Null
+$identity=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+& icacls.exe $run /inheritance:r /grant:r "*${identity}:(OI)(CI)F" '*S-1-5-18:(OI)(CI)F' | Out-Null
+if($LASTEXITCODE -ne 0){throw "Could not restrict report directory: $run"}
 
 $tasks = Get-ScheduledTask |
     Where-Object TaskPath -notlike '\Microsoft\*' |
@@ -15,6 +18,19 @@ $services = Get-CimInstance Win32_Service |
 $wmi = foreach ($class in @('__EventFilter','CommandLineEventConsumer','ActiveScriptEventConsumer','__FilterToConsumerBinding')) {
     Get-CimInstance -Namespace root\subscription -ClassName $class |
         Select-Object @{n='Class';e={$class}}, *
+}
+$defender = Get-MpPreference -ErrorAction SilentlyContinue |
+    Select-Object ExclusionPath,ExclusionProcess,ExclusionExtension,DisableRealtimeMonitoring
+$sessions = @()
+& quser.exe 2>$null | ForEach-Object { $sessions += $_ }
+$shareAcls = @()
+foreach($share in @(Get-SmbShare -ErrorAction SilentlyContinue)) {
+    try {
+        $shareAcls += Get-SmbShareAccessControl -Name $share.Name |
+            Select-Object @{n='Share';e={$share.Name}},Name,AccessControlType,AccessRight
+    } catch {
+        $shareAcls += [pscustomobject]@{Share=$share.Name;Name='ERROR';AccessControlType='';AccessRight=$_.Exception.Message}
+    }
 }
 
 $autoruns = @()
@@ -40,5 +56,8 @@ $tasks | Export-Csv (Join-Path $run 'tasks.csv') -NoTypeInformation
 $services | Export-Csv (Join-Path $run 'services.csv') -NoTypeInformation
 $autoruns | Export-Csv (Join-Path $run 'autoruns.csv') -NoTypeInformation
 $wmi | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $run 'wmi.json') -Encoding UTF8
+$defender | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $run 'defender.json') -Encoding UTF8
+$sessions | Set-Content (Join-Path $run 'sessions.txt') -Encoding UTF8
+$shareAcls | Export-Csv (Join-Path $run 'share-acls.csv') -NoTypeInformation
 Write-Host "Persistence evidence: $run" -ForegroundColor Cyan
 Write-Warning 'Audit only. Nothing was disabled or removed.'

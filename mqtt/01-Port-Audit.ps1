@@ -9,7 +9,10 @@ if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 }
 
 $run = Join-Path $ReportRoot (Get-Date -Format 'yyyyMMdd-HHmmssfff')
-New-Item -ItemType Directory -Path $run -Force | Out-Null
+New-Item -ItemType Directory -Path $ReportRoot,$run -Force | Out-Null
+$identity=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+& icacls.exe $run /inheritance:r /grant:r "*${identity}:(OI)(CI)F" '*S-1-5-18:(OI)(CI)F' | Out-Null
+if($LASTEXITCODE -ne 0){throw "Could not restrict report directory: $run"}
 $identity = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
 & icacls.exe $run /inheritance:r /grant:r "*${identity}:(OI)(CI)F" '*S-1-5-18:(OI)(CI)F' | Out-Null
 if ($LASTEXITCODE -ne 0) { throw "Could not restrict $run" }

@@ -87,14 +87,14 @@ Save-Audit 'proxy.csv' {
 
 Save-Audit 'listeners.csv' {
     $rows = foreach ($socket in @(Get-NetTCPConnection -State Listen)) {
-        $pid = [int]$socket.OwningProcess
+        $owningPid = [int]$socket.OwningProcess
         [pscustomobject]@{ Protocol='TCP'; LocalAddress=$socket.LocalAddress; LocalPort=$socket.LocalPort;
-            ProcessId=$pid; ProcessName=$processes[$pid].Name; ExecutablePath=$processes[$pid].ExecutablePath }
+            ProcessId=$owningPid; ProcessName=$processes[$owningPid].Name; ExecutablePath=$processes[$owningPid].ExecutablePath }
     }
     foreach ($socket in @(Get-NetUDPEndpoint)) {
-        $pid = [int]$socket.OwningProcess
+        $owningPid = [int]$socket.OwningProcess
         [pscustomobject]@{ Protocol='UDP'; LocalAddress=$socket.LocalAddress; LocalPort=$socket.LocalPort;
-            ProcessId=$pid; ProcessName=$processes[$pid].Name; ExecutablePath=$processes[$pid].ExecutablePath }
+            ProcessId=$owningPid; ProcessName=$processes[$owningPid].Name; ExecutablePath=$processes[$owningPid].ExecutablePath }
     }
     $rows
 }

@@ -27,7 +27,10 @@ esac
 ((EUID == 0)) || { echo 'Run as root.' >&2; exit 1; }
 command -v sshd >/dev/null 2>&1 || { echo 'sshd is required.' >&2; exit 1; }
 sshd -t || exit 1
-sshd -T > /tmp/tcdc-sshd-before.txt
+report_root=/root/tcdc-ssh-backups/identity
+mkdir -p -m 700 "$report_root"
+run=$(mktemp -d "$report_root/run.XXXXXXXX")
+sshd -T >"$run/sshd-before.txt"
 
 dropin=/etc/ssh/sshd_config.d/90-tcdc-identity-hardening.conf
 content=$'PermitRootLogin no\nPermitEmptyPasswords no\nMaxAuthTries 4\n'

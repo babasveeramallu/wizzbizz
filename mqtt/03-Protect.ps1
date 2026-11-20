@@ -16,9 +16,9 @@ $service = @(Get-CimInstance Win32_Service |
 if ($service.Count -ne 1) {
     throw "Expected exactly one Mosquitto service; found $($service.Count)."
 }
-$pid = [int]$service[0].ProcessId
-if ($pid -le 0) { throw 'Mosquitto service is not running.' }
-$open = @(Get-NetTCPConnection -State Listen -OwningProcess $pid |
+$servicePid = [int]$service[0].ProcessId
+if ($servicePid -le 0) { throw 'Mosquitto service is not running.' }
+$open = @(Get-NetTCPConnection -State Listen -OwningProcess $servicePid |
     Select-Object -ExpandProperty LocalPort -Unique)
 $missing = @($Port | Where-Object { $_ -notin $open })
 if ($missing.Count) {
@@ -26,7 +26,10 @@ if ($missing.Count) {
 }
 
 $run = Join-Path $BackupRoot (Get-Date -Format 'yyyyMMdd-HHmmssfff')
-New-Item -ItemType Directory -Path $run -Force | Out-Null
+New-Item -ItemType Directory -Path $BackupRoot,$run -Force | Out-Null
+$identity=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+& icacls.exe $run /inheritance:r /grant:r "*${identity}:(OI)(CI)F" '*S-1-5-18:(OI)(CI)F' | Out-Null
+if($LASTEXITCODE -ne 0){throw "Could not restrict report directory: $run"}
 & netsh.exe advfirewall export (Join-Path $run 'before.wfw') | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'Firewall export failed.' }
 
@@ -50,7 +53,7 @@ foreach ($p in $Port | Sort-Object -Unique) {
         throw "Multiple MQTT protection rules named '$name' exist; inspect before continuing."
     }
 }
-Get-NetTCPConnection -State Listen -OwningProcess $pid |
+Get-NetTCPConnection -State Listen -OwningProcess $servicePid |
     Select-Object LocalAddress,LocalPort |
     Export-Csv (Join-Path $run 'mosquitto-after.csv') -NoTypeInformation
 Write-Host "MQTT remains listening on: $(($Port -join ', ')); firewall backup: $run\before.wfw" -ForegroundColor Green

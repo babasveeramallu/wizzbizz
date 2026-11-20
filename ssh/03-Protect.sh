@@ -41,8 +41,12 @@ sshd -T | grep -qx "port $port" ||
     { echo "Port $port is not configured by sshd." >&2; exit 1; }
 line=$(ss -H -ltnp | grep -E "[:.]${port}[[:space:]]" | head -n 1)
 [[ -n $line ]] || { echo "TCP port $port is not listening." >&2; exit 1; }
-[[ $line == *sshd* || $line == *ssh* ]] ||
-    { echo "TCP port $port is not owned by sshd: $line" >&2; exit 1; }
+socket_active=false
+if systemctl is-active --quiet ssh.socket 2>/dev/null; then
+    socket_active=true
+fi
+[[ $line == *sshd* || $line == *ssh* || ($socket_active == true && $line == *systemd*) ]] ||
+    { echo "TCP port $port is not owned by sshd or active ssh.socket: $line" >&2; exit 1; }
 ufw status | grep -q '^Status: active' ||
     { echo 'UFW is not active; this script will not enable it.' >&2; exit 1; }
 
@@ -52,7 +56,14 @@ if [[ $apply != --apply ]]; then
 fi
 before=$(mktemp)
 ufw status numbered >"$before"
-if ufw status | grep -q "^[[:space:]]*$port/tcp"; then
+allow_present=false
+while read -r target action remainder; do
+    if [[ $target == "$port/tcp" && $action == ALLOW ]]; then
+        allow_present=true
+        break
+    fi
+done < <(ufw status)
+if $allow_present; then
     echo "Existing broad rule for TCP $port is present; no duplicate was added."
 else
     ufw allow "$port/tcp" comment 'SSH scored service'
