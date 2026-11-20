@@ -187,7 +187,35 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 | **Windows** | `07-wazuh-verify.ps1` | Read-only check of managed Wazuh/ossec service, DNS, `ossec.log`, and TCP `1514` reachability. |
 | **Windows** | `08-mosquitto-functional-check.ps1` | Backs up `mosquitto.conf`, extracts security/include directives, checks TCP port, optional `-FunctionalTest` anonymous pub/sub. |
 | **Windows** | `09-password-rotation.ps1` | Plan-only by default (`-Account ... -Apply`); skips protected accounts, writes incrementally to `icacls`-locked `credentials.csv`. *(Local users only—use `Set-ADAccountPassword` on `ad`.)* |
-| **Optional** | `10-jumpbox-pull-backups.sh` / `10-windows-dual-backup.ps1` / `10-mqtt-alert-dashboard.ps1` | Dual local + jumpbox vault backups and zero-port live Windows MQTT alert dashboard. |
+| **AD** | `ad/00-audit-harden.ps1` | Audits DC identity, groups, delegation, GPOs, SYSVOL, shares, sessions, Wazuh, and selected host controls; optional `-Apply`. |
+| **AD** | `ad/01-password-rotation.ps1` | Plan-first AD-native password rotation with protected identities, private incremental CSV, and immediate dashboard-sync reminder. |
+| **Linux services** | `linux/00-service-harden.sh` | Audits DNS, FTP, HTTP, or ipcam service configuration and optionally adds confirmed broad inbound UFW rules. |
+| **Optional** | `backup/jumpbox-pull-backups.sh` / `backup/windows-dual-backup.ps1` / `mqtt/10-mqtt-alert-dashboard.ps1` | Dual local + jumpbox vault backups and zero-port live Windows MQTT alert dashboard. |
+
+## Active Directory
+
+Run from an elevated PowerShell session on `ad`:
+
+```powershell
+.\ad\00-audit-harden.ps1
+.\ad\01-password-rotation.ps1 -Account washington,kennedy,teddy
+```
+
+## Other Linux Services
+
+Run from the applicable DNS, FTP, HTTP, or ipcam host:
+
+```bash
+sudo bash linux/00-service-harden.sh --role dns
+sudo bash linux/00-service-harden.sh --role ftp
+sudo bash linux/00-service-harden.sh --role http
+sudo bash linux/00-service-harden.sh --role ipcam
+```
+
+Add `--allow-ports` and `--apply` only after confirming active listeners. UFW
+must already be active.
+
+## MQTT
 
 ---
 
