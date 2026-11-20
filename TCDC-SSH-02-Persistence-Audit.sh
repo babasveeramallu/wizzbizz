@@ -2,7 +2,27 @@
 set -uo pipefail
 umask 077
 
-report_root=${1:-/root/tcdc-ssh-backups/persistence}
+usage() {
+    cat <<'EOF'
+Usage: sudo bash TCDC-SSH-02-Persistence-Audit.sh [--report-dir DIR]
+Audit only. No units, cron files, keys, or accounts are changed.
+EOF
+}
+
+report_root=/root/tcdc-ssh-backups/persistence
+while (($#)); do
+    case "$1" in
+        --report-dir)
+            (($# >= 2)) || usage
+            [[ -n $2 && $2 != --* ]] || usage
+            report_root=$2
+            shift 2
+            ;;
+        --help|-h) usage; exit 0 ;;
+        *) usage; exit 2 ;;
+    esac
+done
+
 ((EUID == 0)) || { echo 'Run as root.' >&2; exit 1; }
 [[ ! -L $report_root ]] || { echo 'Report path must not be a link.' >&2; exit 1; }
 mkdir -p -m 700 "$report_root"

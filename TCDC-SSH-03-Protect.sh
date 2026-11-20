@@ -3,12 +3,32 @@ set -uo pipefail
 umask 077
 
 usage() {
-    echo 'Usage: sudo bash TCDC-SSH-03-Protect.sh PORT [--apply]' >&2
+    cat >&2 <<'EOF'
+Usage:
+  sudo bash TCDC-SSH-03-Protect.sh PORT
+  sudo bash TCDC-SSH-03-Protect.sh PORT --apply
+
+PORT is required. The script is plan-only unless --apply is the second argument.
+EOF
     exit 2
 }
 port=${1:-}
 apply=${2:-}
-[[ $port =~ ^[0-9]{1,5}$ ]] || usage
+if [[ $port == --help || $port == -h ]]; then
+    usage
+fi
+if [[ $port == --apply ]]; then
+    echo 'ERROR: --apply is a mode flag; supply the SSH port first.' >&2
+    echo 'Example: sudo bash TCDC-SSH-03-Protect.sh 22 --apply' >&2
+    usage
+fi
+if (($# < 1 || $# > 2)); then
+    usage
+fi
+[[ $port =~ ^[0-9]{1,5}$ ]] || {
+    echo 'ERROR: PORT must be a decimal port number.' >&2
+    usage
+}
 port=$((10#$port))
 ((port >= 1 && port <= 65535)) || usage
 [[ -z $apply || $apply == --apply ]] || usage
