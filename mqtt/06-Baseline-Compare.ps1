@@ -27,6 +27,9 @@ if ($CompareOld -and $CompareNew) {
 }
 
 $ErrorActionPreference='Stop'
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    throw 'Run from elevated PowerShell.'
+}
 $run=Join-Path $ReportRoot (Get-Date -Format 'yyyyMMdd-HHmmssfff')
 New-Item -ItemType Directory -Path $ReportRoot,$run -Force | Out-Null
 $identity=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value

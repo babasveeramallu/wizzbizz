@@ -13,8 +13,8 @@ report_root=/root/tcdc-ssh-backups/persistence
 while (($#)); do
     case "$1" in
         --report-dir)
-            (($# >= 2)) || usage
-            [[ -n $2 && $2 != --* ]] || usage
+            (($# >= 2)) || { usage; exit 2; }
+            [[ -n $2 && $2 != --* ]] || { usage; exit 2; }
             report_root=$2
             shift 2
             ;;

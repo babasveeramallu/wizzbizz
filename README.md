@@ -19,7 +19,7 @@ cd mqtt
 .\05-Identity-Plan.ps1
 .\06-Baseline-Compare.ps1
 .\07-Wazuh-Verify.ps1 -ManagerIP <confirmed-manager-ip>
-.\08-Mosquitto-Check.ps1
+.\08-Mosquitto-Check.ps1 -FunctionalTest
 .\09-Password-Rotation.ps1 -Account washington,kennedy
 ```
 

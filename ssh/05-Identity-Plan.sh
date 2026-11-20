@@ -32,7 +32,7 @@ mkdir -p -m 700 "$report_root"
 run=$(mktemp -d "$report_root/run.XXXXXXXX")
 sshd -T >"$run/sshd-before.txt"
 
-dropin=/etc/ssh/sshd_config.d/90-tcdc-identity-hardening.conf
+dropin=/etc/ssh/sshd_config.d/00-identity-hardening.conf
 content=$'PermitRootLogin no\nPermitEmptyPasswords no\nMaxAuthTries 4\n'
 printf 'Planned drop-in: %s\n' "$dropin"
 printf '%s' "$content"

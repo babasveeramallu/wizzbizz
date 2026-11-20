@@ -95,7 +95,9 @@ fi
 capture passwd.txt getent passwd
 capture group.txt getent group
 capture sudo-group.txt getent group sudo
-capture wheel-group.txt getent group wheel
+if getent group wheel >/dev/null 2>&1; then
+    capture wheel-group.txt getent group wheel
+fi
 capture running-services.txt systemctl list-units --type=service --state=running --no-pager
 capture enabled-units.txt systemctl list-unit-files --state=enabled --no-pager
 capture failed-units.txt systemctl --failed --no-pager

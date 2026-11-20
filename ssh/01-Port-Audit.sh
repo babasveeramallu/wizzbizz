@@ -25,7 +25,7 @@ fi
         read -r netid state recvq sendq local peer process <<<"$line"
         class=REVIEW
         [[ $process == *sshd* || $process == *ssh* ]] && class=SCORED-SSH
-        if $socket_active && [[ $process == *systemd* ]]; then
+        if $socket_active && [[ $netid == tcp && $process == *systemd* ]]; then
             for ssh_port in "${ssh_ports[@]}"; do
                 if [[ $local == *":$ssh_port" ]]; then class=SCORED-SSH; break; fi
             done

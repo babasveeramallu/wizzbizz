@@ -3,6 +3,9 @@
 param([string]$ReportRoot = 'C:\TCDC_Backup\persistence')
 
 $ErrorActionPreference = 'Stop'
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    throw 'Run from elevated PowerShell.'
+}
 $run = Join-Path $ReportRoot (Get-Date -Format 'yyyyMMdd-HHmmssfff')
 New-Item -ItemType Directory -Path $ReportRoot,$run -Force | Out-Null
 $identity=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
@@ -22,12 +25,18 @@ $wmi = foreach ($class in @('__EventFilter','CommandLineEventConsumer','ActiveSc
 $defender = Get-MpPreference -ErrorAction SilentlyContinue |
     Select-Object ExclusionPath,ExclusionProcess,ExclusionExtension,DisableRealtimeMonitoring
 $sessions = @()
-& quser.exe 2>$null | ForEach-Object { $sessions += $_ }
+try {
+    $previousEap = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    & quser.exe 2>$null | ForEach-Object { $sessions += $_ }
+} finally {
+    $ErrorActionPreference = $previousEap
+}
 $shareAcls = @()
 foreach($share in @(Get-SmbShare -ErrorAction SilentlyContinue)) {
     try {
-        $shareAcls += Get-SmbShareAccessControl -Name $share.Name |
-            Select-Object @{n='Share';e={$share.Name}},Name,AccessControlType,AccessRight
+        $shareAcls += Get-SmbShareAccess -Name $share.Name |
+            Select-Object @{n='Share';e={$share.Name}},AccountName,AccessControlType,AccessRight
     } catch {
         $shareAcls += [pscustomobject]@{Share=$share.Name;Name='ERROR';AccessControlType='';AccessRight=$_.Exception.Message}
     }

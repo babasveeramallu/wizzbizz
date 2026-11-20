@@ -36,7 +36,7 @@ port=$((10#$port))
 command -v ss >/dev/null && command -v sshd >/dev/null && command -v ufw >/dev/null ||
     { echo 'ss, sshd, and ufw are required.' >&2; exit 1; }
 
-sshd -t
+sshd -t || exit 1
 sshd -T | grep -qx "port $port" ||
     { echo "Port $port is not configured by sshd." >&2; exit 1; }
 line=$(ss -H -ltnp | grep -E "[:.]${port}[[:space:]]" | head -n 1)
@@ -58,7 +58,7 @@ before=$(mktemp)
 ufw status numbered >"$before"
 allow_present=false
 while read -r target action remainder; do
-    if [[ $target == "$port/tcp" && $action == ALLOW ]]; then
+    if [[ $target == "$port/tcp" && $action == ALLOW && $remainder == Anywhere* ]]; then
         allow_present=true
         break
     fi
