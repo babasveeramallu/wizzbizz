@@ -9,6 +9,7 @@ change.
 Run from elevated PowerShell:
 
 ```powershell
+.\TCDC-MQTT-00-System-Audit.ps1
 .\TCDC-MQTT-01-Port-Audit.ps1
 .\TCDC-MQTT-02-Persistence-Audit.ps1
 .\TCDC-MQTT-03-Protect.ps1 -Port <confirmed-mqtt-port>
@@ -18,6 +19,7 @@ Run from elevated PowerShell:
 ## Ubuntu / SSH
 
 ```bash
+sudo bash TCDC-SSH-00-System-Audit.sh
 sudo bash TCDC-SSH-01-Port-Audit.sh
 sudo bash TCDC-SSH-02-Persistence-Audit.sh
 sudo bash TCDC-SSH-03-Protect.sh <confirmed-ssh-port>
@@ -26,6 +28,13 @@ sudo bash TCDC-SSH-03-Protect.sh <confirmed-ssh-port> --apply
 
 The protection scripts verify that the requested port belongs to Mosquitto or
 `sshd` before adding a firewall allow.
+
+The `00-System-Audit` scripts are the recommended first commands. They capture
+host identity, IPv4/IPv6 addresses and prefixes, adapters, MAC addresses, routes,
+default gateway, DNS, ARP/neighbors, firewall state, listening and established
+sockets with process ownership, users, services, scheduled tasks/timers,
+installed software/packages, and persistence metadata. They do not collect
+password hashes, private keys, shell history, or environment variables.
 
 ## Existing Wazuh Agent Verification
 
