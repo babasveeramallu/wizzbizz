@@ -215,6 +215,20 @@ sudo bash linux/00-service-harden.sh --role ipcam
 Add `--allow-ports` and `--apply` only after confirming active listeners. UFW
 must already be active.
 
+## Read-Only Vulnerability Scans
+
+```powershell
+.\windows\11-win-vuln-scan.ps1
+```
+
+```bash
+sudo bash linux/01-vuln-scan.sh
+```
+
+These scanners report potential privilege-escalation and hardening findings
+without changing the host. They do not print password values or unattended-file
+contents, and their findings still require operator validation.
+
 ## MQTT
 
 ---
