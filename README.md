@@ -3,6 +3,24 @@
 Independent scripts for the Windows MQTT and Ubuntu SSH hosts. Run each module
 separately and review its report before applying a change.
 
+## Backup
+
+Run the pull workflow on the jumpbox:
+
+```bash
+bash backup/jumpbox-pull-backups.sh --team 3 --user washington
+```
+
+Run the Windows workflow elevated on MQTT or AD:
+
+```powershell
+.\backup\windows-dual-backup.ps1 -JumpboxShare '\\tsclient\tcdc-vault'
+```
+
+The backup workflows keep credentials off managed servers. Linux uses outbound
+SSH/SCP initiated by the jumpbox, and Windows can use a Remmina shared folder or
+interactive SCP. Only the Remmina-share Windows path verifies the copied hash.
+
 ## MQTT
 
 Run from elevated PowerShell:
