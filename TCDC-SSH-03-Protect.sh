@@ -50,6 +50,14 @@ if [[ $apply != --apply ]]; then
     echo "PLAN: allow inbound TCP $port from Any after confirming the SSH scorer."
     exit 0
 fi
-ufw allow "$port/tcp" comment 'TCDC SSH'
+before=$(mktemp)
+ufw status numbered >"$before"
+if ufw status | grep -q "^[[:space:]]*$port/tcp"; then
+    echo "Existing broad rule for TCP $port is present; no duplicate was added."
+else
+    ufw allow "$port/tcp" comment 'TCDC SSH'
+fi
+diff -u "$before" <(ufw status numbered) || true
+rm -f "$before"
 ufw status numbered
 echo 'Verify a new SSH session before closing the existing session.'
