@@ -1,9 +1,4 @@
-# TCDC Open 2026 — Master Hardening Playbook & Game-Day Runbook
-
-> **Event:** Texas Cyber Defense Challenge (TCDC) Open 2026 — *The Museum of American & Aggie History*  
-> **Date:** Saturday, November 21, 2026 (9:00 AM – 5:45 PM Central Time)  
-> **Tool Repository:** `https://github.com/babasveeramallu/wizzbizz`  
-> **Core Mandate:** **80% Uptime** (30-second functional ticks) / **20% Injects** — **NO point refunds for Incident Reports.**
+# Hardening Playbook & Game-Day Runbook
 
 ---
 
