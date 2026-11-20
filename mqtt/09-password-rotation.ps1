@@ -47,3 +47,5 @@ $rows | Format-Table -AutoSize
 if($LASTEXITCODE -ne 0){throw 'Could not restrict credentials.csv ACL.'}
 Write-Host "Private credential sheet: $csvPath" -ForegroundColor Cyan
 Write-Warning 'Immediately update https://dash.playtcdc.org/team/passwords for every changed score user.'
+$failed=@($rows | Where-Object {$_.Status -like 'ERROR:*'}).Count
+if($failed -gt 0){throw "$failed password change(s) failed; review $csvPath"}

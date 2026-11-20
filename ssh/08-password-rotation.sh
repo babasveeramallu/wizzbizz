@@ -33,6 +33,7 @@ read -r owner mode < <(stat -c '%u %a' "$report")
 ((owner == 0 && (8#$mode & 077) == 0)) || { echo 'Credential report path must be root-owned and private.' >&2; exit 1; }
 run=$(mktemp -d "$report/run.XXXXXXXX")
 printf 'USERNAME\tPASSWORD\tDASHBOARD_SYNC\n' >"$run/credentials.tsv"
+failed=0
 for account in "${accounts[@]}"; do
     if [[ $apply == true ]]; then
         password=$(set +o pipefail; LC_ALL=C tr -dc 'A-HJ-NP-Za-km-z2-9!#%^_*' </dev/urandom | head -c 24)
@@ -40,6 +41,7 @@ for account in "${accounts[@]}"; do
             status=CHANGED
         else
             status=FAILED
+            failed=$((failed + 1))
         fi
     else
         password=NOT_GENERATED
@@ -51,3 +53,7 @@ chmod 600 "$run/credentials.tsv"
 echo "Private credential sheet: $run/credentials.tsv"
 echo 'Immediately update https://dash.playtcdc.org/team/passwords for any changed score user.'
 echo 'If the scoring check changes fail, restore the previous credential through your approved recovery path.'
+if ((failed > 0)); then
+    echo "ERROR: $failed password change(s) failed; review $run/credentials.tsv." >&2
+    exit 1
+fi

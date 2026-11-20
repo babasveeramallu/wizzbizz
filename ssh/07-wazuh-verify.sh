@@ -80,7 +80,7 @@ for unit in wazuh-agent.service wazuh.service ossec.service; do
     if systemctl is-active --quiet "$unit"; then active_agent=true; break; fi
 done
 if [[ $active_agent != true ]]; then
-    printf 'WARN: no Wazuh service is active: %s\n' "$manager_host" >&2
+    printf 'WARN: no managed Wazuh agent service is active on this host.\n' >&2
     failures=$((failures + 1))
 fi
 systemctl list-unit-files --no-pager wazuh-agent.service wazuh.service ossec.service >>"$run/agent-services.txt" 2>&1 ||
