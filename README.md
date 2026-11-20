@@ -53,8 +53,6 @@ All times are **Central Time (CT)** on **Saturday, November 21, 2026**.
 | **Inject Submissions** | `https://dash.playtcdc.org/team/injects` |
 | **Competition Store** | `https://dash.playtcdc.org/team/store` |
 | **TxCR Single Sign-On (Xen Orchestra)** | `https://sso.txcr.dev` |
-| **Technical Contact** | Michael Bengil — `mace.bengil@tamu.edu` |
-| **Operations Contact** | Khoi Tran — `khoi@tamu.edu` |
 
 ### Scoring & Store Clarifications (Packet + Staff Discord)
 - **Weights:** **80% Uptime** / **20% Injects**.
