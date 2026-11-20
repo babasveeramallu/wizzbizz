@@ -60,9 +60,11 @@ Get-ADComputer -Filter {TrustedForDelegation -eq $true} -Properties TrustedForDe
 Get-ADComputer -Filter * -Properties OperatingSystem,OperatingSystemVersion,LastLogonDate,IPv4Address |
     Select-Object Name,Enabled,OperatingSystem,OperatingSystemVersion,LastLogonDate,IPv4Address |
     Export-Csv (Join-Path $run 'ad-computers.csv') -NoTypeInformation
-Get-GPO -All -ErrorAction SilentlyContinue |
-    Select-Object DisplayName,Id,GpoStatus,CreationTime,ModificationTime |
-    Export-Csv (Join-Path $run 'gpos.csv') -NoTypeInformation
+if(Get-Command Get-GPO -ErrorAction SilentlyContinue){
+    Get-GPO -All |
+        Select-Object DisplayName,Id,GpoStatus,CreationTime,ModificationTime |
+        Export-Csv (Join-Path $run 'gpos.csv') -NoTypeInformation
+}
 
 if(Test-Path 'C:\Windows\SYSVOL'){
     Get-ChildItem 'C:\Windows\SYSVOL' -Recurse -File -ErrorAction SilentlyContinue |
@@ -70,7 +72,13 @@ if(Test-Path 'C:\Windows\SYSVOL'){
         Select-Object FullName,Length,LastWriteTime |
         Export-Csv (Join-Path $run 'sysvol-scripts.csv') -NoTypeInformation
 }
-& dcdiag.exe /q > (Join-Path $run 'dcdiag.txt') 2>&1
+$oldEap=$ErrorActionPreference
+try{
+    $ErrorActionPreference='Continue'
+    & dcdiag.exe /q > (Join-Path $run 'dcdiag.txt') 2>&1
+}finally{
+    $ErrorActionPreference=$oldEap
+}
 
 Get-MpPreference -ErrorAction SilentlyContinue |
     Select-Object DisableRealtimeMonitoring,ExclusionPath,ExclusionProcess,ExclusionExtension |

@@ -50,7 +50,7 @@ case "$role" in
         if command -v dig >/dev/null;then dig @127.0.0.1 localhost A +time=2 +tries=1 >"$run/local-dig.txt" 2>&1||true;fi
         ;;
     ftp)
-        for path in /etc/vsftpd.conf /etc/vsftpd /etc/proftpd /etc/ftpusers;do backup_path "$path";done
+        for path in /etc/vsftpd.conf /etc/vsftpd /etc/proftpd /etc/ftpusers /srv/ftp /var/ftp;do backup_path "$path";done
         if [[ -r /etc/vsftpd.conf ]];then
             grep -niE '^(anonymous_enable|anon_upload_enable|anon_mkdir_write_enable|local_enable|write_enable|chroot_local_user|allow_writeable_chroot|pasv_enable|pasv_min_port|pasv_max_port|userlist_enable|userlist_deny)' /etc/vsftpd.conf >"$run/vsftpd-security.txt"||true
         fi
@@ -58,7 +58,7 @@ case "$role" in
         ;;
     http|ipcam)
         [[ $role != ipcam ]] || echo 'ipcam is outside OPNsense; host firewall and application controls are critical.' >"$run/perimeter-note.txt"
-        for path in /etc/nginx /etc/apache2;do backup_path "$path";done
+        for path in /etc/nginx /etc/apache2 /var/www;do backup_path "$path";done
         if [[ -d /var/www ]];then
             find /var/www -type f -exec sha256sum {} + >"$run/webroot.sha256" 2>/dev/null||true
             find /var/www -type f \( -name '*.php' -o -name '*.py' -o -name '*.sh' \) -mtime -7 -printf '%TY-%Tm-%Td %TH:%TM %u:%g %p\n' >"$run/recent-web-scripts.txt" 2>/dev/null||true

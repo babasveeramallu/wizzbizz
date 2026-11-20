@@ -47,7 +47,13 @@ $state=[ordered]@{
     )
     Firewall=@(Get-NetFirewallRule -PolicyStore ActiveStore | Select-Object Name,DisplayName,Enabled,Direction,Action,Profile | Sort-Object Name)
     Tasks=@(Get-ScheduledTask | Select-Object TaskPath,TaskName,State,@{n='Actions';e={($_.Actions|ForEach-Object{"$($_.Execute) $($_.Arguments)"})-join';'}} | Sort-Object TaskPath,TaskName)
-    Users=@(Get-LocalUser | Select-Object Name,Enabled,Description | Sort-Object Name)
+    Users=@(try{
+        Get-LocalUser -ErrorAction Stop |
+            Select-Object Name,Enabled,Description |
+            Sort-Object Name
+    }catch{
+        @()
+    })
 }
 $state | ConvertTo-Json -Depth 7 | Set-Content (Join-Path $run 'state.json') -Encoding UTF8
 & netsh.exe advfirewall export (Join-Path $run 'firewall.wfw') | Out-Null
