@@ -17,7 +17,22 @@ if ($service.Count -ne 1) {
     throw "Expected exactly one Mosquitto service; found $($service.Count)."
 }
 $servicePid = [int]$service[0].ProcessId
-if ($servicePid -le 0) { throw 'Mosquitto service is not running.' }
+if ($servicePid -le 0) {
+    if (-not $Apply) {
+        throw 'Mosquitto service is not running. Re-run with -Apply to set Automatic startup and start it.'
+    }
+    Set-Service -Name $service[0].Name -StartupType Automatic
+    Start-Service -Name $service[0].Name
+    $service = @(Get-CimInstance Win32_Service |
+        Where-Object { $_.Name -match 'mosquitto' -or $_.DisplayName -match 'mosquitto' })
+    if ($service.Count -ne 1) {
+        throw 'Could not refresh the Mosquitto service after Start-Service.'
+    }
+    $servicePid = [int]$service[0].ProcessId
+    if ($servicePid -le 0) {
+        throw 'Mosquitto did not acquire a process after Start-Service.'
+    }
+}
 $open = @(Get-NetTCPConnection -State Listen -OwningProcess $servicePid |
     Select-Object -ExpandProperty LocalPort -Unique)
 $missing = @($Port | Where-Object { $_ -notin $open })
@@ -40,9 +55,6 @@ if (-not $Apply) {
 }
 
 Set-Service -Name $service[0].Name -StartupType Automatic
-if ((Get-Service -Name $service[0].Name).Status -ne 'Running') {
-    Start-Service -Name $service[0].Name
-}
 foreach ($p in $Port | Sort-Object -Unique) {
     $name = "WizzBizz-MQTT-TCP-$p"
     $existing = @(Get-NetFirewallRule -PolicyStore PersistentStore -DisplayName $name -ErrorAction SilentlyContinue)
