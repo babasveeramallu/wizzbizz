@@ -4,7 +4,7 @@ umask 077
 
 usage() {
     cat <<'EOF'
-Usage: sudo bash 07-Wazuh-Verify.sh [--manager-host DNS] [--manager-ip IP] [--allow-firewall] [--report-dir DIR]
+Usage: sudo bash 07-wazuh-verify.sh [--manager-host DNS] [--manager-ip IP] [--allow-firewall] [--report-dir DIR]
 
 Read-only by default. It checks the existing Black Team-managed agent, manager
 DNS, local agent log, and outbound TCP 1514. It never installs, enrolls,

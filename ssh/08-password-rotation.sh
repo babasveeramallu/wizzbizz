@@ -2,7 +2,7 @@
 set -uo pipefail
 umask 077
 
-usage(){ echo 'Usage: sudo bash 09-Password-Rotation.sh USER [USER ...] [--apply]' >&2; exit 2; }
+usage(){ echo 'Usage: sudo bash 08-password-rotation.sh USER [USER ...] [--apply]' >&2; exit 2; }
 apply=false
 accounts=()
 while (($#)); do

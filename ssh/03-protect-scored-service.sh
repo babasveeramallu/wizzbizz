@@ -5,8 +5,8 @@ umask 077
 usage() {
     cat >&2 <<'EOF'
 Usage:
-  sudo bash 03-Protect.sh PORT
-  sudo bash 03-Protect.sh PORT --apply
+  sudo bash 03-protect-scored-service.sh PORT
+  sudo bash 03-protect-scored-service.sh PORT --apply
 
 PORT is required. The script is plan-only unless --apply is the second argument.
 EOF
@@ -19,7 +19,7 @@ if [[ $port == --help || $port == -h ]]; then
 fi
 if [[ $port == --apply ]]; then
     echo 'ERROR: --apply is a mode flag; supply the SSH port first.' >&2
-    echo 'Example: sudo bash 03-Protect.sh 22 --apply' >&2
+    echo 'Example: sudo bash 03-protect-scored-service.sh 22 --apply' >&2
     usage
 fi
 if (($# < 1 || $# > 2)); then
